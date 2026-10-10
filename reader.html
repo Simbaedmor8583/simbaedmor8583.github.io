@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>AI Reader · Evelyn Jones</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500..800&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+:root{
+  --bg:#f2f5f6; --surface:#ffffff; --fg:#13202a; --fg-2:#44525d; --muted:#6c7a84; --line:#d4dce0;
+  --accent:#0d6b61; --accent-soft:#dbeeea; --accent-ink:#0a5a51;
+  --crit:#d03b3b; --crit-ink:#ad2828;
+}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.55 "Source Sans 3",system-ui,sans-serif;background:var(--bg);color:var(--fg);min-height:100vh}
+header{background:var(--surface);border-bottom:1px solid var(--line);padding:16px 24px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+header .kicker{font-family:Archivo,sans-serif;font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+header h1{font-family:Archivo,sans-serif;font-weight:800;font-size:20px;margin:0}
+header .sub{font-size:13px;color:var(--muted)}
+main{max-width:860px;margin:0 auto;padding:20px 24px 60px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:16px}
+.card h2{font-family:Archivo,sans-serif;font-size:15px;font-weight:700;margin:0 0 10px}
+label{display:block;font-size:13px;font-weight:600;color:var(--fg-2);margin:10px 0 4px}
+input[type=text],input[type=password],textarea,select{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 11px;font:inherit;color:var(--fg);background:#fff}
+textarea{min-height:220px;resize:vertical}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--accent-soft);border-color:var(--accent)}
+button{font:inherit;font-weight:600;border:0;border-radius:8px;padding:9px 16px;cursor:pointer;background:var(--accent);color:#fff}
+button.secondary{background:var(--surface-2,#e8eef0);color:var(--fg)}
+button:hover{filter:brightness(1.05)}
+button:disabled{opacity:.5;cursor:default}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.row .grow{flex:1;min-width:160px}
+.hint{font-size:12.5px;color:var(--muted);margin-top:6px}
+.hint a{color:var(--accent);font-weight:600;text-decoration:none}
+.hint a:hover{text-decoration:underline}
+.error{display:none;background:#fdeaea;color:var(--crit-ink);border:1px solid #f3c1c1;border-radius:8px;padding:10px 14px;font-size:13.5px;margin-bottom:14px}
+.status{font-size:13px;color:var(--muted)}
+.reader-pane{display:none;line-height:1.7;font-size:16.5px}
+.reader-pane .chunk{border-radius:4px;padding:1px 2px;transition:background .15s}
+.reader-pane .chunk.active{background:var(--accent-soft);color:var(--accent-ink)}
+.controls{position:sticky;bottom:0;background:linear-gradient(to top,var(--bg) 70%,transparent);padding:14px 0 4px;display:none}
+.controls button{min-width:96px}
+#keypanel .saved{color:var(--accent-ink);font-weight:600}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <span class="kicker">Evelyn Jones</span>
+    <h1>AI Reader</h1>
+  </div>
+  <span class="sub">Paste text, listen in a premium AI voice · powered by ElevenLabs</span>
+</header>
+<main>
+  <div class="error" id="error"></div>
+
+  <div class="card" id="keypanel">
+    <h2>1 · Voice engine key</h2>
+    <div id="keystatus"></div>
+    <label for="apikey">ElevenLabs API key</label>
+    <div class="row">
+      <input class="grow" type="password" id="apikey" placeholder="xi-api-key (sk_...)" autocomplete="off">
+      <button id="savekey">Save key</button>
+      <button class="secondary" id="forgetkey" hidden>Remove</button>
+    </div>
+    <p class="hint">Get a key at <a href="https://elevenlabs.io/app/settings/api-keys" target="_blank" rel="noopener">elevenlabs.io → API keys</a> (free account, no card). Your key is stored only in this browser and is sent nowhere except directly to ElevenLabs.</p>
+  </div>
+
+  <div class="card" id="inputpanel">
+    <h2>2 · Text</h2>
+    <div class="row">
+      <label class="grow" for="voice" style="margin:0">Voice</label>
+      <label class="grow" for="model" style="margin:0">Model</label>
+    </div>
+    <div class="row" style="margin-bottom:6px">
+      <select class="grow" id="voice"><option value="">Save your key first</option></select>
+      <select class="grow" id="model">
+        <option value="eleven_turbo_v2_5" selected>Turbo (fast, great quality)</option>
+        <option value="eleven_multilingual_v2">Multilingual v2 (richest)</option>
+      </select>
+    </div>
+    <label for="text">Paste or type anything</label>
+    <textarea id="text" placeholder="Paste an article, notes, a case brief..."></textarea>
+    <div class="row" style="margin-top:10px">
+      <button class="secondary" id="sample">Load sample text</button>
+      <span class="status grow" id="charcount" style="text-align:right"></span>
+    </div>
+  </div>
+
+  <div class="card" id="readpanel">
+    <h2>3 · Read</h2>
+    <div class="row">
+      <button id="play">▶ Read aloud</button>
+      <button class="secondary" id="pause" hidden>Pause</button>
+      <button class="secondary" id="stop" hidden>■ Stop</button>
+      <span class="status grow" id="status"></span>
+    </div>
+    <div class="reader-pane" id="pane"></div>
+  </div>
+</main>
+<script>
+(function(){
+  var KEY_STORE = 'el_reader_key';
+  var key = localStorage.getItem(KEY_STORE) || '';
+  var voices = [];
+  var chunks = [], audio = new Audio(), running = false, stopped = true, currentIdx = -1, cache = {};
+  var $ = function(id){ return document.getElementById(id); };
+  var errBox = $('error'), status = $('status');
+
+  function showErr(msg){ errBox.textContent = msg; errBox.style.display = 'block'; }
+  function clearErr(){ errBox.style.display = 'none'; }
+  function api(path, opts){
+    opts = opts || {};
+    opts.headers = Object.assign({'xi-api-key': key}, opts.headers || {});
+    if(opts.body && !opts.headers['Content-Type']) opts.headers['Content-Type'] = 'application/json';
+    return fetch('https://api.elevenlabs.io/v1' + path, opts).then(function(r){
+      if(!r.ok){ return r.text().then(function(t){ throw new Error('ElevenLabs said (' + r.status + '): ' + t.slice(0,300)); }); }
+      return r;
+    });
+  }
+
+  function renderKeyPanel(){
+    var ks = $('keystatus');
+    if(key){
+      ks.innerHTML = '<span class="saved">Key saved.</span> Voices load automatically.';
+      $('apikey').value = '';
+      $('forgetkey').hidden = false;
+      loadVoices();
+    } else {
+      ks.innerHTML = '<span class="status">No key saved yet.</span>';
+      $('forgetkey').hidden = true;
+      $('voice').innerHTML = '<option value="">Save your key first</option>';
+    }
+  }
+  $('savekey').addEventListener('click', function(){
+    var v = $('apikey').value.trim();
+    if(!v){ showErr('Paste your ElevenLabs API key first.'); return; }
+    key = v; localStorage.setItem(KEY_STORE, v); clearErr(); renderKeyPanel();
+  });
+  $('forgetkey').addEventListener('click', function(){
+    key = ''; localStorage.removeItem(KEY_STORE); renderKeyPanel();
+  });
+
+  function loadVoices(){
+    $('voice').innerHTML = '<option value="">Loading voices…</option>';
+    api('/voices').then(function(r){ return r.json(); }).then(function(data){
+      voices = (data.voices || []).sort(function(a,b){
+        var pa = a.category === 'premade' ? 0 : 1, pb = b.category === 'premade' ? 0 : 1;
+        return pa - pb || a.name.localeCompare(b.name);
+      });
+      var html = voices.map(function(v){
+        var tag = v.category === 'premade' ? '' : ' · ' + (v.category||'voice');
+        return '<option value="' + v.voice_id + '">' + escapeHtml(v.name) + tag + '</option>';
+      }).join('');
+      $('voice').innerHTML = html;
+      var prev = localStorage.getItem('el_reader_voice');
+      if(prev && voices.some(function(v){ return v.voice_id === prev; })) $('voice').value = prev;
+    }).catch(function(e){
+      $('voice').innerHTML = '<option value="">Could not load voices</option>';
+      showErr('Could not load voices. ' + e.message);
+    });
+  }
+  $('voice').addEventListener('change', function(){ localStorage.setItem('el_reader_voice', this.value); });
+
+  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+  function splitSentences(text, maxLen){
+    var parts = text.replace(/\s+/g,' ').trim().match(/[^.!?]+[.!?]+["')\]]*\s*|[^.!?]+$/g) || [text];
+    var out = [], buf = '';
+    parts.forEach(function(s){
+      if((buf + s).length > maxLen && buf){ out.push(buf.trim()); buf = s; }
+      else buf += s;
+    });
+    if(buf.trim()) out.push(buf.trim());
+    return out;
+  }
+
+  function updateCount(){
+    var n = $('text').value.length;
+    $('charcount').textContent = n ? n.toLocaleString() + ' characters ≈ ' + n.toLocaleString() + ' credits' : '';
+  }
+  $('text').addEventListener('input', updateCount);
+  $('sample').addEventListener('click', function(){
+    $('text').value = 'Private credit has quietly become one of the fastest corners of finance. Banks pulled back after the rate shock, and funds stepped in with loans arranged in weeks instead of months. The trade-off is simple: borrowers get speed and privacy, investors get wider spreads, and both sides accept less liquidity than a public bond offers.';
+    updateCount();
+  });
+
+  function start(){
+    clearErr();
+    var text = $('text').value.trim();
+    if(!text){ showErr('Paste some text to read first.'); return; }
+    if(!key){ showErr('Save your ElevenLabs API key first (step 1).'); return; }
+    if(!$('voice').value){ showErr('Pick a voice.'); return; }
+    if(!voices.length){ showErr('Voices have not loaded yet. Check your key, then reload the page.'); return; }
+    chunks = splitSentences(text, 400);
+    cache = {};
+    var pane = $('pane');
+    pane.innerHTML = chunks.map(function(c,i){
+      return '<span class="chunk" data-i="' + i + '">' + escapeHtml(c) + '</span>';
+    }).join(' ');
+    pane.style.display = 'block';
+    $('text').closest('.card').style.display = 'none';
+    $('play').hidden = true; $('pause').hidden = false; $('stop').hidden = false;
+    running = true; stopped = false; currentIdx = -1;
+    speak(0);
+  }
+  function speak(i){
+    if(stopped) return;
+    currentIdx = i;
+    var span = pane().filter(function(s){ return s.getAttribute('data-i') == i; })[0];
+    document.querySelectorAll('.chunk.active').forEach(function(s){ s.classList.remove('active'); });
+    if(span){ span.classList.add('active'); span.scrollIntoView({block:'center', behavior:'smooth'}); }
+    status.textContent = 'Generating audio… chunk ' + (i+1) + ' of ' + chunks.length;
+    var voiceId = $('voice').value, model = $('model').value;
+    fetch('https://api.elevenlabs.io/v1/text-to-speech/' + voiceId + '?output_format=mp3_44100_128', {
+      method: 'POST',
+      headers: {'xi-api-key': key, 'Content-Type': 'application/json'},
+      body: JSON.stringify({text: chunks[i], model_id: model})
+    }).then(function(r){
+      if(!r.ok){ return r.text().then(function(t){ throw new Error('ElevenLabs said (' + r.status + '): ' + t.slice(0,300)); }); }
+      return r.blob();
+    }).then(function(b){
+      if(stopped) return;
+      cache[i] = URL.createObjectURL(b);
+      audio.src = cache[i];
+      audio.play();
+      status.textContent = 'Reading… chunk ' + (i+1) + ' of ' + chunks.length;
+      if(i + 1 < chunks.length){
+        fetch('https://api.elevenlabs.io/v1/text-to-speech/' + voiceId + '?output_format=mp3_44100_128', {
+          method: 'POST',
+          headers: {'xi-api-key': key, 'Content-Type': 'application/json'},
+          body: JSON.stringify({text: chunks[i+1], model_id: model})
+        }).then(function(r){ return r.ok ? r.blob() : null; }).then(function(b){
+          if(b && !stopped) cache[i+1] = URL.createObjectURL(b);
+        }).catch(function(){});
+      }
+    }).catch(function(e){
+      stopAll();
+      showErr('Could not generate audio. ' + e.message);
+    });
+  }
+  function pane(){ return Array.prototype.slice.call(document.querySelectorAll('.chunk')); }
+  audio.addEventListener('ended', function(){
+    if(stopped) return;
+    if(currentIdx + 1 < chunks.length){ speak(currentIdx + 1); }
+    else { stopAll(); status.textContent = 'Done.'; }
+  });
+  audio.addEventListener('error', function(){
+    if(stopped) return;
+    stopAll();
+    showErr('Audio playback failed.');
+  });
+  function stopAll(){
+    stopped = true; running = false;
+    audio.pause(); audio.removeAttribute('src');
+    $('play').hidden = false; $('pause').hidden = true; $('stop').hidden = true;
+    $('pause').textContent = 'Pause';
+    $('text').closest('.card').style.display = 'block';
+    status.textContent = '';
+  }
+  $('play').addEventListener('click', start);
+  $('stop').addEventListener('click', function(){ stopAll(); status.textContent = 'Stopped.'; });
+  $('pause').addEventListener('click', function(){
+    if(audio.paused){ audio.play(); this.textContent = 'Pause'; status.textContent = 'Reading…'; }
+    else { audio.pause(); this.textContent = 'Resume'; status.textContent = 'Paused.'; }
+  });
+  renderKeyPanel();
+  updateCount();
+})();
+</script>
+</body>
+</html>
