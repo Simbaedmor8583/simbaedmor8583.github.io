@@ -2,48 +2,132 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Evelyn Jones · Mock Cases</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Evelyn Jones · Case Practice Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500..800&family=Source+Sans+3:wght@400;600;700&display=swap">
 <style>
-  :root { color-scheme: light dark; }
-  body {
-    margin: 0; min-height: 100vh;
-    display: flex; align-items: center; justify-content: center;
-    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background: #f2f5f6; color: #13202a;
-  }
-  main { width: min(560px, 92vw); }
-  h1 { font-size: 28px; margin: 0 0 4px; }
-  p.sub { margin: 0 0 32px; color: #44525d; }
-  a.card {
-    display: block; padding: 20px 24px; margin-bottom: 16px;
-    background: #ffffff; border: 1px solid #d4dce0; border-radius: 12px;
-    text-decoration: none; color: inherit;
-    transition: border-color .15s ease, transform .15s ease;
-  }
-  a.card:hover { border-color: #0d6b61; transform: translateY(-2px); }
-  a.card h2 { margin: 0 0 4px; font-size: 18px; color: #0d6b61; }
-  a.card p { margin: 0; color: #44525d; font-size: 14px; }
-  @media (prefers-color-scheme: dark) {
-    body { background: #10181d; color: #e8eef0; }
-    p.sub, a.card p { color: #a8b4bb; }
-    a.card { background: #1b252a; border-color: #33404a; }
-    a.card:hover { border-color: #0d6b61; }
-  }
+:root{
+  --bg:#f2f5f6; --surface:#ffffff; --fg:#13202a; --fg-2:#44525d; --muted:#6c7a84; --line:#d4dce0;
+  --accent:#0d6b61; --accent-soft:#dbeeea;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font:15px/1.5 "Source Sans 3",system-ui,sans-serif;background:var(--bg);color:var(--fg)}
+.app{display:flex;height:100vh}
+.sidebar{width:280px;flex:0 0 280px;background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column}
+.brand{padding:22px 20px 16px;border-bottom:1px solid var(--line)}
+.brand .kicker{font-family:Archivo,sans-serif;font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.brand h1{font-family:Archivo,sans-serif;font-weight:800;font-size:19px;margin:6px 0 2px}
+.brand p{margin:0;font-size:13px;color:var(--muted)}
+.nav{padding:12px 12px 4px;flex:1;overflow-y:auto}
+.nav .label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:8px 10px 4px}
+.case-link{display:block;padding:11px 12px;border-radius:9px;text-decoration:none;color:var(--fg-2);margin-bottom:4px;border:1px solid transparent}
+.case-link:hover{background:var(--bg)}
+.case-link.active{background:var(--accent-soft);border-color:#bcdcd6;color:var(--fg)}
+.case-link .name{font-weight:700;font-size:15px;display:block}
+.case-link .meta{font-size:12.5px;color:var(--muted);display:block;margin-top:1px}
+.case-link.active .meta{color:#3f6b64}
+.sidebar-foot{padding:14px 20px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+.sidebar-foot a{color:var(--accent);font-weight:600;text-decoration:none}
+.sidebar-foot a:hover{text-decoration:underline}
+.stage{flex:1;min-width:0;display:flex;flex-direction:column}
+.welcome{flex:1;display:flex;align-items:center;justify-content:center;padding:40px}
+.welcome-card{max-width:520px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:34px 38px;box-shadow:0 1px 3px rgba(19,32,42,.06)}
+.welcome-card h2{font-family:Archivo,sans-serif;font-weight:800;font-size:24px;margin:0 0 8px}
+.welcome-card p{margin:0 0 12px;color:var(--fg-2)}
+.welcome-card ol{margin:0;padding-left:22px;color:var(--fg-2)}
+.welcome-card li{margin-bottom:6px}
+.frame{flex:1;border:0;width:100%;height:100%;display:none;background:#fff}
+.open-full{display:none;font-size:12.5px;font-weight:600;color:var(--accent);text-decoration:none;padding:8px 20px;background:var(--surface);border-bottom:1px solid var(--line)}
+.open-full:hover{text-decoration:underline}
+@media (max-width:820px){
+  .app{flex-direction:column;height:auto;min-height:100vh}
+  .sidebar{width:100%;flex:none}
+  .nav{display:flex;flex-wrap:wrap;gap:6px;padding:10px}
+  .nav .label{display:none}
+  .case-link{margin:0}
+  .stage{min-height:70vh}
+}
 </style>
 </head>
 <body>
-<main>
-  <h1>Evelyn Jones</h1>
-  <p class="sub">Interactive mock case practice tools</p>
-  <a class="card" href="/harbor-bank-mock-case/">
-    <h2>Harbor Bank Mock Case</h2>
-    <p>Case interview practice: interviewer prompts, your move, then a strong answer revealed step by step.</p>
-  </a>
-  <a class="card" href="/fernway-ipo-mock-case/">
-    <h2>Fernway IPO Mock Case</h2>
-    <p>IPO case interview practice with the same step-by-step prompt, answer, and exhibits loop.</p>
-  </a>
-</main>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="kicker">Case practice hub</span>
+      <h1>Evelyn Jones</h1>
+      <p>Interactive mock cases for casing practice</p>
+    </div>
+    <nav class="nav" id="nav">
+      <div class="label">Mock cases</div>
+      <a class="case-link" href="#harbor-bank-mock-case" data-src="/harbor-bank-mock-case/">
+        <span class="name">Harbor Bank</span>
+        <span class="meta">EY Technology Risk · ~35 min</span>
+      </a>
+      <a class="case-link" href="#fernway-ipo-mock-case" data-src="/fernway-ipo-mock-case/">
+        <span class="name">Fernway IPO</span>
+        <span class="meta">PwC CMAAS · ~35 min</span>
+      </a>
+    </nav>
+    <div class="sidebar-foot">
+      <a id="fullscreen-link" href="#" target="_blank" rel="noopener" hidden>Open this case full screen →</a>
+    </div>
+  </aside>
+  <main class="stage">
+    <div class="welcome" id="welcome">
+      <div class="welcome-card">
+        <h2>Pick a case from the sidebar</h2>
+        <p>Each case runs the same loop: the interviewer prompt, your move, then a strong answer to check yourself against, with exhibits like workpapers.</p>
+        <ol>
+          <li>Choose a case on the left. It opens right here.</li>
+          <li>Work it in one sitting, about 35 minutes.</li>
+          <li>Use <em>Open full screen</em> for the wide exhibits.</li>
+        </ol>
+      </div>
+    </div>
+    <a class="open-full" id="openfull" href="#" target="_blank" rel="noopener">Open full screen →</a>
+    <iframe class="frame" id="caseframe" title="Selected case"></iframe>
+  </main>
+</div>
+<script>
+(function(){
+  var links = Array.prototype.slice.call(document.querySelectorAll('.case-link'));
+  var frame = document.getElementById('caseframe');
+  var welcome = document.getElementById('welcome');
+  var openfull = document.getElementById('openfull');
+  var fslink = document.getElementById('fullscreen-link');
+  var current = null;
+  function select(slug){
+    if(current === slug) { return; }
+    current = slug;
+    links.forEach(function(l){ l.classList.toggle('active', l.getAttribute('href') === '#' + slug); });
+    var link = links.filter(function(l){ return l.getAttribute('href') === '#' + slug; })[0];
+    if(!link){ showWelcome(); return; }
+    welcome.style.display = 'none';
+    openfull.style.display = 'block';
+    fslink.hidden = false;
+    openfull.href = link.getAttribute('data-src');
+    fslink.href = link.getAttribute('data-src');
+    frame.src = link.getAttribute('data-src');
+    frame.style.display = 'block';
+  }
+  function showWelcome(){
+    current = null;
+    links.forEach(function(l){ l.classList.remove('active'); });
+    welcome.style.display = 'flex';
+    openfull.style.display = 'none';
+    frame.style.display = 'none';
+    fslink.hidden = true;
+  }
+  links.forEach(function(l){ l.addEventListener('click', function(e){ e.preventDefault(); location.hash = l.getAttribute('href').slice(1); }); });
+  window.addEventListener('hashchange', function(){
+    var slug = location.hash.slice(1);
+    if(slug){ select(slug); } else { showWelcome(); }
+  });
+  if(location.hash){ select(location.hash.slice(1)); }
+})();
+</script>
 </body>
 </html>
